@@ -1,26 +1,74 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from 'react'
+import { GoHeart, GoArrowRight, GoTrashcan } from "react-icons/go";
+import "./styles.css";
 
-function App() {
+const App = () => {
+  const [currentCat, setCurrentCat] = useState(null);
+  const [favoriteCats, setFavoriteCats] = useState([]);
+
+  const favoriteCat = cat => {
+    setFavoriteCats(favoriteCats.concat(cat))
+  };
+
+  const removeFavorite = catToRemove => {
+    setFavoriteCats(favoriteCats.filter(cat => cat !== catToRemove))
+  };
+
+  const catInFavorites = cat => favoriteCats.includes(cat);
+
+  const getCat = () => {
+    const url = 'https://catis.life/cat';
+    setCurrentCat(null);
+    fetch(url)
+      .then(rsp => rsp.json())
+      .then(data => setCurrentCat(data.cat))
+  };
+
+  useEffect(() => {
+    getCat()
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <main>
+      <section className="cat-wrapper">
+        <h1>Choose your favorite cats</h1>
+        <section className="cat-container">
+          <figure>
+            <img
+              className="cat-image"
+              src={currentCat}
+              alt="An awesome cat"
+            />
+          </figure>
+          <ul className="cat-actions">
+            <li>
+              <button
+                onClick={() => favoriteCat(currentCat)}
+                disabled={catInFavorites(currentCat)}
+                className="heart-icon">
+                <GoHeart size="30" color="#f44336" />
+              </button>
+            </li>
+            <li>
+              <button onClick={getCat}>
+                <GoArrowRight size="30" />
+              </button>
+            </li>
+          </ul>
+        </section>
+        <ul className="favorite-cats">
+          {favoriteCats.map((cat, index) => (
+            <li key={index}>
+              <img className="favorite-cat" src={cat} alt="favorited cat"/>
+              <button onClick={() => removeFavorite(cat)}>
+                <GoTrashcan size="20"/>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </section>
+    </main>
   );
-}
+};
 
 export default App;
